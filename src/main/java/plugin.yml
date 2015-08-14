@@ -1,0 +1,13 @@
+name: ${project.name}
+main: mc.euro.stats.StatsPlugin
+version: ${project.version}
+website: https://github.com/Europia79
+description: Easy to use API for different stats plugins
+author: Europia79
+authors: []
+softdepend: [Vault, Stats, BattleTracker, ScoreboardStats, EnjinMinecraftPlugin, BattleArena]
+commands:
+    istats:
+        aliases: []
+        description: Stat manipulation cmds for testing purposes
+        usage: /istats register | add | increment | show
