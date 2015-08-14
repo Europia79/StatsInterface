@@ -12,18 +12,18 @@ import mc.euro.stats.api.Context.ContextItem;
  * 
  * @author Nikolai
  */
-public class Stat {
+public class Stat<E> {
     
     final String category;
     final String name;
-    final DataType type;
+    final DataType<E> type;
     final Context context;
     
-    public Stat(String category, String name, DataType type) {
+    public Stat(String category, String name, DataType<E> type) {
         this(category, name, type, new Context.Builder().create());
     }
     
-    public Stat(String category, String name, DataType type, Context context) {
+    public Stat(String category, String name, DataType<E> type, Context context) {
         this.category = category;
         this.name = name;
         this.type = type;
