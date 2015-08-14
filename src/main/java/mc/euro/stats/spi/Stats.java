@@ -16,17 +16,17 @@ public interface Stats {
     // public Collection<Stat> getStats();
     
     /** registering a Stat */
-    public void registerStat(Stat stat);
-    public void registerStatLog(Stat stat); // For example: Logging date & time that an event occured.
+    public void registerStat(Stat<?> stat);
+    public void registerStatLog(Stat<?> stat); // For example: Logging date & time that an event occured.
     
     /** setting and incrementing player Data for a Stat: */
-    public void setData(Player player, Stat stat, Data value);
-    public void increment(Player player, Stat stat);
-    public void increment(Player player, Stat stat, Number amount); // Only Number data.
+    public <E> void setData(Player player, Stat<E> stat, Data<E> value);
+    public void increment(Player player, Stat<?> stat);
+    public void increment(Player player, Stat<?> stat, Number amount); // Only Number data.
     
     /** getting player Data for a Stat: */
-    public Data getData(Player player, Stat stat);
-    public Map<Stat, Data> getPlayerStats(Player player); // No InvalidDataException here because we can just return zero for the Data.
+    public <E> Data<E> getData(Player player, Stat<E> stat);
+    public Map<Stat<?>, Data<?>> getPlayerStats(Player player); // No InvalidDataException here because we can just return zero for the Data.
     
     /**
      * Getting the Leaderboards:.
@@ -36,7 +36,7 @@ public interface Stats {
      * @throws InvalidDataException This is how you communicate any problems, like absolutely no results found.
      * Altho, if 10 results are requested, and only 5 are found, then you should return the partial results.
      */
-    public Map<Integer, Map<String, Data>> getTopStats(Stat stat, int top) throws InvalidDataException;
+    public <E> Map<Integer, Map<String, Data<E>>> getTopStats(Stat<E> stat, int top) throws InvalidDataException;
     
     /**
      * Redefining a Stat:.
