@@ -10,8 +10,13 @@ public class StatInfo extends StatName {
     
     DataType type;
     
+    public StatInfo(String category, String statName, DataType type) {
+        super(category, statName);
+        this.type = type;
+    }
+    
     public StatInfo(StatName sname, DataType type) {
-        super(sname.getCategoryName(), sname.getStatName());
+        super(sname.category, sname.statName);
         this.type = type;
     }
     
