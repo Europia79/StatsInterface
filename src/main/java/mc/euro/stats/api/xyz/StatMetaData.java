@@ -1,6 +1,8 @@
 package mc.euro.stats.api.xyz;
 
-import java.util.LinkedHashMap;
+import java.util.Map;
+
+import mc.euro.stats.api.xyz.MetaInfo.MetaData;
 
 /**
  * 
@@ -8,24 +10,24 @@ import java.util.LinkedHashMap;
  */
 public class StatMetaData {
     
-    StatName stat;
-    LinkedHashMap<String, Object> contextualValues;
+    StatMetaInfo stat;
+    MetaData metadata;
     
-    public StatMetaData(StatName stat, LinkedHashMap<String, Object> contextualValues) {
+    public StatMetaData(StatMetaInfo stat, MetaData metadata) {
         this.stat = stat;
-        this.contextualValues = contextualValues;
-    }
-    
-    public StatMetaData(StatMetaData meta) {
-        this(meta.stat, meta.contextualValues);
+        this.metadata = metadata;
     }
     
     public StatName getStat() {
         return this.stat;
     }
     
-    public LinkedHashMap<String, Object> getContextualValues() {
-        return this.contextualValues;
+    public MetaData getMetaData() {
+        return this.metadata;
+    }
+    
+    public Map<String, Object> getContextualValues() {
+        return this.metadata.getMetaData();
     }
 
 }
