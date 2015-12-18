@@ -1,7 +1,5 @@
 package mc.euro.stats.api.xyz;
 
-import mc.euro.stats.api.DataType;
-
 /**
  * 
  * @author Nikolai
@@ -15,8 +13,8 @@ public class StatInfo extends StatName {
         this.type = type;
     }
     
-    public StatInfo(StatName sname, DataType type) {
-        super(sname.category, sname.statName);
+    public StatInfo(StatName stat, DataType type) {
+        super(stat.category, stat.name);
         this.type = type;
     }
     

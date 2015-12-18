@@ -3,9 +3,9 @@ package mc.euro.stats.spi.plugins;
 
 import java.util.Map;
 
-import mc.euro.stats.api.Data;
-import mc.euro.stats.api.DataType;
-import mc.euro.stats.api.InvalidDataException;
+import mc.euro.stats.api.xyz.Data;
+import mc.euro.stats.api.xyz.DataType;
+import mc.euro.stats.api.xyz.InvalidDataException;
 import mc.euro.stats.api.Stat;
 import mc.euro.stats.spi.Stats;
 

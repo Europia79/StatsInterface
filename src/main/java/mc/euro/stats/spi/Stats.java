@@ -1,15 +1,20 @@
 package mc.euro.stats.spi;
 
+import com.google.common.collect.Multimap;
+
 import java.util.Map;
 
-import mc.euro.stats.api.Data;
-import mc.euro.stats.api.InvalidDataException;
 import mc.euro.stats.api.Stat;
+import mc.euro.stats.api.xyz.Data;
+import mc.euro.stats.api.xyz.PlayerData;
+import mc.euro.stats.api.xyz.StatName;
 
 import org.bukkit.entity.Player;
 
 /**
  * The main Stats SPI. <br/><br/>
+ * Should the method parameters generally be
+ * interfaces, abstract, concrete, or immutable classes ?
  */
 public interface Stats {
     
@@ -26,17 +31,37 @@ public interface Stats {
     
     /** getting player Data for a Stat: */
     public Data getData(Player player, Stat stat);
-    public Map<Stat, Data> getPlayerStats(Player player); // No InvalidDataException here because we can just return zero for the Data.
+    public Map<StatName, Data> getPlayerStats(Player player); // No InvalidDataException here because we can just return zero for the Data.
+    // public Map<String, Map<String, Data>> getStatCategoriesFor(Player player);
     
     /**
      * Getting the Leaderboards:.
      * @param stat Leaderboard for this Stat.
-     * @param top For example: top 5 or top 10.
-     * @return Maps Position to a Map of Player+Value.
-     * @throws InvalidDataException This is how you communicate any problems, like absolutely no results found.
-     * Altho, if 10 results are requested, and only 5 are found, then you should return the partial results.
+     * @param size For example, top 5 or top 10.
+     * @return Maps Position to a Collection of PlayerData, or an empty Map.
+     * @example Category = <b>2014-15 NHL Goal Leaderboard</b>
+     * <pre>
+     * Pos| Player              | Goals
+     * ---| --------------------| -----
+     *  1 | Alex Ovechkin       | 53
+     *  2 | Steven Stamkos      | 43
+     *  3 | Rick Nash           | 42
+     *  4 | John Tavares        | 38
+     *  5 | Max Pacioretty      | 37
+     *    | Joe Pavelski        | 37
+     *    | Tyler Sequin        | 37
+     *    | Vladimir Tarasenko  | 37
+     *  9 | Jamie Benn          | 35
+     * 10 | Zach Parise         | 33
+     *    | Corey Perry         | 33
+     * </pre>
+     * As you can see, the Multimap can hold duplicate keys.
+     * Position 5 has four PlayerData values (because they're tied in goals).
+     * The size() is easily accessible.
+     * The standard Map view is easily accessible via asMap().
      */
-    public Map<Integer, Map<String, Data>> getTopStats(Stat stat, int top) throws InvalidDataException;
+    public Multimap<Integer, PlayerData> getLeaderboard(StatName stat, int size);
+    // public Map<Integer, Set<PlayerData>> getTopStats(StatName statName, int top);
     
     /**
      * Redefining a Stat:.

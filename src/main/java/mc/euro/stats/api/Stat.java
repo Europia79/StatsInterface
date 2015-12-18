@@ -1,56 +1,92 @@
 package mc.euro.stats.api;
 
-import java.util.Set;
+import com.google.common.collect.ImmutableSet;
 
-import mc.euro.stats.api.Context.ContextItem;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+
+import mc.euro.stats.api.xyz.DataType;
+import mc.euro.stats.api.xyz.MetaInfo.Context;
+import mc.euro.stats.api.xyz.MetaInfo.ContextItem;
 
 /**
  * What is a Stat ?
- * It has a name, category, datatype, and metadata. 
+ * It has a name, category, datatype, and metadata (or contextual information). 
  * metadata example: arenaName or blockMetaData.
  * The combination of StatCategory + StatName makes it unique.
  * 
  * @author Nikolai
  */
-public class Stat {
+public interface Stat {
     
-    final String category;
-    final String name;
-    final DataType type;
-    final Context context;
+    public String getCategory();
+    public String getName();
+    public DataType getDataType();
+    public ImmutableSet<Context> getContext();
     
-    public Stat(String category, String name, DataType type) {
-        this(category, name, type, new Context.Builder().create());
+    public default String getUniqueId() {
+        return getCategory() + "." + getName();
     }
     
-    public Stat(String category, String name, DataType type, Context context) {
-        this.category = category;
-        this.name = name;
-        this.type = type;
-        this.context = context;
+    public static Stat create(Category category, StatName name, DataType type, ImmutableSet<Context> context) {
+        return new Stat() {
+
+            @Override
+            public String getCategory() {
+                return category.getCategory();
+            }
+
+            @Override
+            public String getName() {
+                return name.getName();
+            }
+
+            @Override
+            public DataType getDataType() {
+                return type;
+            }
+
+            @Override
+            public ImmutableSet<Context> getContext() {
+                return context;
+            }
+        };
+    };
+    
+    public static Category category(String category) {
+        return new Category() {
+
+            @Override
+            public String getCategory() {
+                return category;
+            }
+        };
     }
     
-    /**
-     * @return A concatenation of category + name delimited by a period.
-     */
-    public String getUniqueId() {
-        return category + "." + name;
+    public static StatName name(String name) {
+        return new StatName() {
+
+            @Override
+            public String getName() {
+                return name;
+            }
+        };
     }
     
-    public String getCategory() {
-        return category;
+    public static DataType type(String type) {
+        return DataType.valueOf(type);
     }
     
-    public String getName() {
-        return name;
-    }
-    
-    public DataType getDataType() {
-        return this.type;
-    }
-    
-    public Set<ContextItem> getContext() {
-        return this.context.getContext();
+    public static ImmutableSet<Context> context(String[] contextPairs) {
+        LinkedHashSet<ContextItem> result = new LinkedHashSet<ContextItem>();
+        for (int x = 0; x < contextPairs.length; x = x + 2) {
+            for (int y = 1; y < contextPairs.length; y = y + 2) {
+                String name = contextPairs[x];
+                String type = contextPairs[y];
+                result.add(new ContextItem(name, DataType.valueOf(type)));
+            }
+        }
+        return ImmutableSet.<Context>copyOf(new Context.Builder(result).build());
     }
 
 }

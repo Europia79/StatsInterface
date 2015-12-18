@@ -7,9 +7,9 @@ import java.util.Map;
 
 import mc.alk.tracker.TrackerInterface;
 import mc.alk.tracker.objects.WLT;
-import mc.euro.stats.api.Data;
-import mc.euro.stats.api.InvalidDataException;
-import mc.euro.stats.api.DataType;
+import mc.euro.stats.api.xyz.Data;
+import mc.euro.stats.api.xyz.InvalidDataException;
+import mc.euro.stats.api.xyz.DataType;
 
 import org.bukkit.entity.Player;
 

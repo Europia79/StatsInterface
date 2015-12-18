@@ -1,25 +1,26 @@
 package mc.euro.stats;
 
-import mc.euro.stats.spi.plugins.EnjinStats;
-import mc.euro.stats.spi.plugins.LolmewnStatsTwo;
-import mc.euro.stats.spi.plugins.NullStats;
-import mc.euro.stats.spi.plugins.ScoreboardStatsImpl;
-import mc.euro.stats.spi.plugins.AlkarinStats;
-import mc.euro.stats.spi.Stats;
-
 import com.github.games647.scoreboardstats.ScoreboardStats;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import mc.alk.tracker.Tracker;
 import mc.alk.tracker.TrackerInterface;
+import mc.euro.stats.spi.Stats;
+import mc.euro.stats.spi.plugins.AlkarinStats;
+import mc.euro.stats.spi.plugins.EnjinStats;
+import mc.euro.stats.spi.plugins.LolmewnStatsTwo;
+import mc.euro.stats.spi.plugins.NullStats;
+import mc.euro.stats.spi.plugins.ScoreboardStatsImpl;
 import mc.euro.version.Version;
 import mc.euro.version.VersionFactory;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.ServicesManager;
 
 import nl.lolmewn.stats.api.StatsAPI;
 
@@ -69,11 +70,11 @@ public class StatsFactory {
         if (alkarin.isEnabled() && trackStats) {
             String database = plugin.getName();
             TrackerInterface ti = Tracker.getInterface(database);
-            results.add(new AlkarinStats(ti));
+            // results.add(new AlkarinStats(ti));
         }
         if (sb.isEnabled()) {
             ScoreboardStats sbplugin = (ScoreboardStats) Bukkit.getPluginManager().getPlugin("ScoreboardStats");
-            results.add(new ScoreboardStatsImpl(sbplugin) );
+            // results.add(new ScoreboardStatsImpl(sbplugin) );
         }
         if (enjin.isCompatible("2.6") && trackStats) {
             results.add(new EnjinStats());
@@ -82,6 +83,19 @@ public class StatsFactory {
             results.add(new NullStats());
         }
         return results;
+    }
+    
+    public Stats getStatsInterface() {
+        if (!trackStats) {
+            ServicesManager sm = plugin.getServer().getServicesManager();
+            Collection<RegisteredServiceProvider<Stats>> providers = sm.getRegistrations(Stats.class);
+            for (RegisteredServiceProvider impl : providers) {
+                if (impl.getProvider() instanceof NullStats) {
+                    return (Stats) impl.getProvider();
+                }
+            }
+        }
+        return plugin.getServer().getServicesManager().getRegistration(Stats.class).getProvider();
     }
 
 }

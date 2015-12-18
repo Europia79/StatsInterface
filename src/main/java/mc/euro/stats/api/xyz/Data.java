@@ -1,12 +1,12 @@
-package mc.euro.stats.api;
+package mc.euro.stats.api.xyz;
+
+import com.google.common.collect.ImmutableMap;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -24,10 +24,10 @@ public class Data {
     private Data() { }
     
     public Data(String data) {
-        this(data, new HashMap<String, Object>());
+        this(data, ImmutableMap.<String, Object>builder().build() );
     }
     
-    public Data(String data, Map<String, Object> contextualValues) {
+    public Data(String data, ImmutableMap<String, Object> contextualValues) {
         this.data = data;
         this.contextualValues = contextualValues;
     }

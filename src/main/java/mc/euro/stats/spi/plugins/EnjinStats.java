@@ -2,22 +2,35 @@ package mc.euro.stats.spi.plugins;
 
 
 import com.enjin.officialplugin.stats.StatsPlayer;
+import com.google.common.collect.Multimap;
 
 import java.util.Map;
 
-import mc.euro.stats.api.Data;
-import mc.euro.stats.api.DataType;
-import mc.euro.stats.api.InvalidDataException;
+import mc.euro.stats.api.xyz.Data;
+import mc.euro.stats.api.xyz.DataType;
 import mc.euro.stats.api.Stat;
+import mc.euro.stats.api.xyz.PlayerData;
+import mc.euro.stats.api.xyz.StatName;
 import mc.euro.stats.spi.Stats;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 /**
- * Example Enjin API code:
+ * Example Enjin API code:.
+ * <pre>
  * StatsPlayer enjinStats = new StatsPlayer(Bukkit.getOfflinePlayer(uuid));
  * enjinStats.addCustomStat("BattleArena", statName, 1, true);
+ * </pre>
+ * 
+ * StatsPlayer.addCustomStat(plugin, stat, value, boolean addtoexisting).
+ * 
+ * Where the String plugin parameter is never used to obtain an actual plugin instance.
+ * But rather, it's only ever used as a String label to separate stats into different
+ * categories (by plugin).
+ * 
+ * So, essentially, this "plugin" parameter can be anything.
+ * So, we'll use it for our stat.getCategory().
  * 
  * @author Nikolai
  */
@@ -70,17 +83,16 @@ public class EnjinStats implements Stats {
 
     @Override
     public Data getData(Player player, Stat stat) {
-        StatsPlayer enjinStats = new StatsPlayer(Bukkit.getOfflinePlayer(player.getUniqueId()));
-        enjinStats.
+        throw new UnsupportedOperationException("Must get Data from the Enjin website.");
     }
 
     @Override
-    public Map<Stat, Data> getPlayerStats(Player player) {
+    public Map<StatName, Data> getPlayerStats(Player player) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public Map<Integer, Map<String, Data>> getTopStats(Stat stat, int top) throws InvalidDataException {
+    public Multimap<Integer, PlayerData> getLeaderboard(StatName stat, int size) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

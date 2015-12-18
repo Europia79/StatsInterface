@@ -1,5 +1,8 @@
 package mc.euro.stats.spi.plugins;
 
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,10 +11,10 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import mc.euro.stats.api.Context.ContextItem;
-import mc.euro.stats.api.Data;
-import mc.euro.stats.api.DataType;
-import mc.euro.stats.api.InvalidDataException;
+import mc.euro.stats.api.xyz.Data;
+import mc.euro.stats.api.xyz.MetaInfo.Context;
+import mc.euro.stats.api.xyz.PlayerData;
+import mc.euro.stats.api.xyz.StatName;
 import mc.euro.stats.spi.Stats;
 
 import org.bukkit.entity.Player;
@@ -22,6 +25,7 @@ import nl.lolmewn.stats.api.StatsAPI;
 import nl.lolmewn.stats.api.mysql.MySQLAttribute;
 import nl.lolmewn.stats.api.mysql.MySQLType;
 import nl.lolmewn.stats.api.mysql.StatTableType;
+import nl.lolmewn.stats.api.mysql.StatsColumn;
 import nl.lolmewn.stats.api.mysql.StatsTable;
 import nl.lolmewn.stats.player.StatData;
 import nl.lolmewn.stats.player.StatsPlayer;
@@ -48,7 +52,9 @@ public class LolmewnStatsTwo implements Stats {
     }
     
     public void registerNewTable(mc.euro.stats.api.Stat stat) {
-        StatsTable table = new StatsTable(stat.getCategory(), true, api.isCreatingSnapshots());
+        String tableName = stat.getCategory();
+        StatsTable table = new StatsTable(tableName, true, api.isCreatingSnapshots());
+        api.getStatsTableManager().putIfAbsent(tableName, table);
         Stat s = api.addStat(stat.getUniqueId(), 
                 StatDataType.INCREASING, 
                 StatTableType.TABLE, 
@@ -58,20 +64,22 @@ public class LolmewnStatsTwo implements Stats {
                 stat.getContext().toArray(new String[0])
         );
         table.addStat(s);
-        for (ContextItem c : stat.getContext()) {
-            table.addColumn(c.getName(), MySQLType.valueOf(c.getDataType().name())).addAttributes(MySQLAttribute.NOT_NULL).setDefault("0");
+        for (Context c : stat.getContext()) {
+            StatsColumn col = table.addColumn(c.getName(), MySQLType.valueOf(c.getDataType().name())).addAttributes(MySQLAttribute.NOT_NULL);
+            if (c.getDefault() != null) col.setDefault(c.getDefault());
         }
     }
     
     public void registerNewColumn(mc.euro.stats.api.Stat stat) {
-        StatsTable table = new StatsTable(stat.getCategory(), true, api.isCreatingSnapshots());
+        String tableName = stat.getCategory();
+        StatsTable table = api.getStatsTableManager().get(tableName);
         api.addStat(stat.getUniqueId(), 
                 StatDataType.INCREASING, 
                 StatTableType.COLUMN, 
                 table, 
                 MySQLType.valueOf(stat.getDataType().name()), 
                 stat.getName().toLowerCase().replaceAll(" ", ""), 
-                stat.getContext().stream().map((ContextItem c) -> c.getName()).toArray((int size) -> new String[size])
+                stat.getContext().stream().map((Context c) -> c.getName()).toArray((int size) -> new String[size])
         );
     }
     
@@ -84,7 +92,7 @@ public class LolmewnStatsTwo implements Stats {
                 table, 
                 MySQLType.STRING, 
                 stat.getName().toLowerCase().replaceAll(" ", ""), 
-                stat.getContext().stream().map((ContextItem c) -> c.getName()).toArray((int size) -> new String[size])
+                stat.getContext().stream().map((Context c) -> c.getName()).toArray((int size) -> new String[size])
         );
     }
 
@@ -97,11 +105,15 @@ public class LolmewnStatsTwo implements Stats {
         if (value.getContextualValues().values().size() != stat.getContext().size()) {
             throw new UnsupportedOperationException("Not enough metadata was passed to setData()");
         }
-        for (ContextItem key : stat.getContext()) {
+        int index = 0;
+        for (Context key : stat.getContext()) {
             if (!value.getContextualValues().containsKey(key.getName())) {
                 throw new UnsupportedOperationException("Incorrect metadata was passed to setData()");
             }
+            contextualValues[index] = value.getContextualValues().get(key.getName());
+            index = index + 1;
         }
+        
         sdata.setCurrentValue(contextualValues, value.doubleValue());
         sdata.forceUpdate(stat.getContext().toArray());
     }
@@ -135,41 +147,58 @@ public class LolmewnStatsTwo implements Stats {
     }
 
     @Override
-    public Map<mc.euro.stats.api.Stat, Data> getPlayerStats(Player player) {
-        Map<mc.euro.stats.api.Stat, Data> results = new HashMap<>();
+    public Map<StatName, Data> getPlayerStats(Player player) {
+        Map<StatName, Data> results = new HashMap<>();
         StatsPlayer splayer = api.getPlayer(player);
         for (Stat s : api.getAllStats()) {
             for (String w : splayer.getWorlds()) {
                 StatData d = splayer.getStatData(s, w, false);
                 if (d.getAllVariables().isEmpty()) {
                     double v = d.getValue(new Object[] {});
-                    mc.euro.stats.api.Stat stat = new mc.euro.stats.api.Stat(s.getTable().getName(), s.getName());
+                    StatName stat = new StatName(s.getTable().getName(), s.getName());
                     results.put(stat, new Data(String.valueOf(v)));
                 }
             }
         }
         return results;
     }
+    
+    // @Override public Map<String, Map<String, Data>> getStatCategoriesFor(Player player) { return null }
 
     @Override
-    public Map<Integer, Map<String, Data>> getTopStats(mc.euro.stats.api.Stat stat, int top) throws InvalidDataException {
-        Map<Integer, Map<String, Data>> results = new HashMap<>();
-        String table = stat.getCategory();
-        String column = stat.getName();
-        String sql = "SELECT * FROM " + table + " ORDER BY " + column + " LIMIT " + top;
+    public Multimap<Integer, PlayerData> getLeaderboard(StatName stat, int size) {
+        Multimap<Integer, PlayerData> results = LinkedHashMultimap.create(size * 2, size);
+        final String players = api.getDatabasePrefix() + "players";
+        final String table = stat.getCategory();
+        final String column = stat.getName();
+        String format9 = "SELECT %s, %s, %s FROM %s INNER JOIN %s ON %s = %s ORDER BY %s LIMIT %d";
+        String sql = String.format(format9, 
+                table + ".player_id",   // SELECT table.player_id,
+                table + "." + column,   //        table.column,
+                players + ".name",      //        players.name
+                table,                  // FROM table
+                players,                // INNER JOIN players
+                table + ".player_id",   // ON table.player_id
+                players + ".player_id", // = players.player_id
+                table + "." + column,   // ORDER BY table.column
+                size);                  // LIMIT size
         PreparedStatement st = null;
         ResultSet rs = null;
         try {
             st = api.getConnection().prepareStatement(sql);
             rs = st.executeQuery();
             Integer position = 0;
+            String previousValue = null;
             while (rs.next()) {
-                position = position + 1;
-                String player = rs.getString("player");
+                rs.getMetaData();
+                String player = rs.getString("name");
                 String value = rs.getString(stat.getName());
-                Map<String, Data> record = new HashMap<>();
-                record.put(player, new Data(value));
-                results.put(position, record);
+                if (!value.equals(previousValue)) {
+                    position = position + 1;
+                }
+                previousValue = value;
+                
+                results.put(position, new PlayerData(player, new Data(value)));
             }
         } catch (SQLException ex) {
             Logger.getLogger(LolmewnStatsTwo.class.getName()).log(Level.SEVERE, null, ex);
@@ -178,12 +207,12 @@ public class LolmewnStatsTwo implements Stats {
                 if (rs != null) {
                     rs.close();
                 }
+                if (st != null) {
+                    st.close();
+                }
             } catch (SQLException ex) {
                 Logger.getLogger(LolmewnStatsTwo.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }
-        if (results.isEmpty()) {
-            throw new InvalidDataException("No data found");
         }
         return results;
     }

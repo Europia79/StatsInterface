@@ -1,14 +1,16 @@
 package mc.euro.stats.spi.plugins;
 
-import mc.euro.stats.api.Stat;
-import mc.euro.stats.spi.Stats;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import mc.euro.stats.api.Data;
-import mc.euro.stats.api.InvalidDataException;
-import mc.euro.stats.api.DataType;
+import mc.euro.stats.api.Stat;
+import mc.euro.stats.api.xyz.Data;
+import mc.euro.stats.api.xyz.PlayerData;
+import mc.euro.stats.api.xyz.StatName;
+import mc.euro.stats.spi.Stats;
 
 import org.bukkit.entity.Player;
 
@@ -49,13 +51,13 @@ public class NullStats implements Stats {
     }
 
     @Override
-    public Map<Stat, Data> getPlayerStats(Player player) {
-        return new HashMap<>();
+    public Map<StatName, Data> getPlayerStats(Player player) {
+        return new HashMap<StatName, Data>();
     }
 
     @Override
-    public Map<Integer, Map<String, Data>> getTopStats(Stat stat, int top) throws InvalidDataException {
-        throw new InvalidDataException("Data not found: No StatEngine is installed.");
+    public Multimap<Integer, PlayerData> getLeaderboard(StatName stat, int size) {
+        return LinkedHashMultimap.create();
     }
 
 }

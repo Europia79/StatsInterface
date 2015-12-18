@@ -16,7 +16,7 @@ public class StatsPlugin extends JavaPlugin implements CommandExecutor {
     
     @Override
     public void onEnable() {
-        this.stats = new StatsFactory(this).getNewInstance();
+        this.stats = new StatsFactory(this).getStatsInterface();
         getCommand("istats").setExecutor(new StatExecutor(stats));
     }
     

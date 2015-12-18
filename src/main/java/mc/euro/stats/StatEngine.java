@@ -21,7 +21,7 @@ public interface StatEngine {
          * 
          * String Row can either be Player Name or Player UUID.
          */
-        Map<String, Table<String, String, Number>> tables = new HashMap<>();
+        Map<String, Table<String, String, Number>> tables = new HashMap<String, Table<String, String, Number>>();
 
         @Override
         public Table<String, String, Number> getTable(String name) {

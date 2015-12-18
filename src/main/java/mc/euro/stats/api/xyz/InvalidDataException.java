@@ -1,4 +1,4 @@
-package mc.euro.stats.api;
+package mc.euro.stats.api.xyz;
 
 /**
  * 

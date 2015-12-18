@@ -4,24 +4,24 @@ package mc.euro.stats.api.xyz;
  * 
  * @author Nikolai
  */
-public class StatName extends CategoryName {
+public class StatName extends Category {
     
-    String statName;
+    String name;
     
     public StatName(String category, String name) {
         super(category);
-        this.statName = name;
+        this.name = name;
     }
     
-    public String getStatName() {
-        return this.statName;
+    public String getName() {
+        return this.name;
     }
     /**
      * Alias for getUniqueId() & getFullyQualifiedName()
      * @return String concatenation of categoryName.statName
      */
     public String getCanonicalName() {
-        return category + "." + statName;
+        return category + "." + name;
     }
     
     /**
@@ -29,7 +29,7 @@ public class StatName extends CategoryName {
      * @return String concatenation of categoryName.statName
      */
     public String getFullyQualifiedName() {
-        return category + "." + statName;
+        return category + "." + name;
     }
     
     /**
@@ -37,7 +37,7 @@ public class StatName extends CategoryName {
      * @return String concatenation of categoryName.statName
      */
     public String getUniqueId() {
-        return category + "." + statName;
+        return category + "." + name;
     }
     
     /**
@@ -46,7 +46,7 @@ public class StatName extends CategoryName {
      */
     @Override
     public String toString() {
-        return category + "." + statName;
+        return category + "." + name;
     }
 
 }

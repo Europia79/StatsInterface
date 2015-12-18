@@ -4,15 +4,15 @@ package mc.euro.stats.api.xyz;
  * 
  * @author Nikolai
  */
-public class CategoryName {
+public class Category {
     
     String category;
     
-    public CategoryName(String category) {
+    public Category(String category) {
         this.category = category;
     }
     
-    public String getCategoryName() {
+    public String getCategory() {
         return this.category;
     }
 
