@@ -90,7 +90,7 @@ public class StatsFactory {
             ServicesManager sm = plugin.getServer().getServicesManager();
             Collection<RegisteredServiceProvider<Stats>> providers = sm.getRegistrations(Stats.class);
             for (RegisteredServiceProvider impl : providers) {
-                if (impl.getProvider() instanceof NullStats) {
+                if (!(impl.getProvider() instanceof NullStats)) {
                     return (Stats) impl.getProvider();
                 }
             }
