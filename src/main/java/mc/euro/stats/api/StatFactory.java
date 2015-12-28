@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 
 import java.util.LinkedHashSet;
 
+import mc.euro.stats.api.immutables.ImmutableStat;
 import mc.euro.stats.api.xyz.DataType;
 import mc.euro.stats.api.xyz.MetaInfo;
 
@@ -18,28 +19,7 @@ public class StatFactory {
     }
     
     public static Stat defineStat(Category category, StatName name, DataType type, ImmutableSet<MetaInfo.Context> context) {
-        return new Stat() {
-
-            @Override
-            public String getCategory() {
-                return category.getCategory();
-            }
-
-            @Override
-            public String getName() {
-                return name.getName();
-            }
-
-            @Override
-            public DataType getDataType() {
-                return type;
-            }
-
-            @Override
-            public ImmutableSet<MetaInfo.Context> getOtherColumns() {
-                return context;
-            }
-        };
+        return new ImmutableStat(category, name, type, context);
     }
     
     public static Category category(String category) {
