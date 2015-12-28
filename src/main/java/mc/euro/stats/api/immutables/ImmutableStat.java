@@ -3,75 +3,52 @@ package mc.euro.stats.api.immutables;
 import com.google.common.collect.ImmutableSet;
 
 import mc.euro.stats.api.Category;
+import mc.euro.stats.api.Stat;
 import mc.euro.stats.api.StatName;
-import mc.euro.stats.api.concretes.ConcreteStat;
 import mc.euro.stats.api.xyz.DataType;
-import mc.euro.stats.api.xyz.MetaInfo;
+import mc.euro.stats.api.xyz.MetaInfo.Context;
 
 /**
  * 
  * @author Nikolai
  */
-public final class ImmutableStat {
+public final class ImmutableStat implements Stat {
     
     private final Category category;
     private final StatName name;
     private final DataType type;
-    private final ImmutableSet<MetaInfo.ContextItem> context;
+    private final ImmutableSet<Context> context;
     
-    public ImmutableStat(Category category, StatName name, DataType type, ImmutableSet<MetaInfo.ContextItem> contextLabels) {
+    public ImmutableStat(Category category, StatName name, DataType type, ImmutableSet<Context> contextLabels) {
         this.category = category;
         this.name = name;
         this.type = type;
         this.context = contextLabels;
     }
     
+    @Override
     public String getCategory() {
         return this.category.toString();
     }
     
+    @Override
     public String getName() {
         return this.name.getName();
     }
     
+    @Override
     public DataType getDataType() {
         return this.type;
     }
     
-    public ImmutableSet<MetaInfo.ContextItem> getContext() {
+    @Override
+    public ImmutableSet<Context> getOtherColumns() {
         return this.context;
     }
     
+    @Override
     public String getUniqueId() {
         return getCategory() + "." + getName();
-    }
-    
-    
-    
-    
-    
-    
-    /*
-     * *******************************************************************8*****
-     */
-    public static ConcreteStat create(Category category, StatName name, DataType type, ImmutableSet<MetaInfo.ContextItem> context) {
-        return null;
-    };
-    
-    public static Category category(String category) {
-        return null;
-    }
-    
-    public static StatName name(String name) {
-        return null;
-    }
-    
-    public static DataType type(String type) {
-        return null;
-    }
-    
-    public static ImmutableSet<MetaInfo.ContextItem> context() {
-        return null;
     }
 
 }

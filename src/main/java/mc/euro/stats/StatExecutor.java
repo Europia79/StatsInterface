@@ -8,6 +8,7 @@ import java.util.ServiceLoader;
 import mc.alk.arena.executors.CustomCommandExecutor;
 import mc.alk.arena.executors.MCCommand;
 import mc.euro.stats.api.Stat;
+import mc.euro.stats.api.StatFactory;
 import mc.euro.stats.api.xyz.Data;
 import mc.euro.stats.api.xyz.DataType;
 import mc.euro.stats.api.xyz.InvalidDataException;
@@ -41,12 +42,11 @@ public class StatExecutor extends CustomCommandExecutor {
      */
     @MCCommand(cmds = {"register"}, op = true)
     public boolean register(CommandSender sender, String category, String statName, String type, String... context) {
-        Iterator<Stats> it = ServiceLoader.load(Stats.class).iterator();
-        Stat stat = Stat.create( // create/define a Stat
-                Stat.category(category),
-                Stat.name(statName),
-                Stat.type(type),
-                Stat.context(context));
+        Stat stat = StatFactory.defineStat( // create/define a Stat
+                StatFactory.category(category),
+                StatFactory.name(statName),
+                StatFactory.type(type),
+                StatFactory.context(context));
         // You only have to create/define a Stat once:
         // then you should simply be able to get it via the UniqueId: Category + StatName
         // Stat s = Stat.getStat(Stat.category(category), Stat.name(statName));
