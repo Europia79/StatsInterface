@@ -15,7 +15,7 @@ public class StatFactory {
     static Map<String, Stat> stats = new HashMap<>();
     
     public static Stat get(String uniqueId) {
-        return stats.get(uniqueId);
+        return stats.get(uniqueId.toLowerCase());
     }
     
     public static Stat createStat(Category category, StatName name, DataType type, ImmutableSet<MetaInfo.Context> context) {
@@ -23,7 +23,9 @@ public class StatFactory {
     }
     
     public static Stat defineStat(Category category, StatName name, DataType type, ImmutableSet<MetaInfo.Context> context) {
-        return new ImmutableStat(category, name, type, context);
+        Stat stat = new ImmutableStat(category, name, type, context);
+        stats.put(stat.getUniqueId().toLowerCase(), stat);
+        return stat;
     }
     
     public static Category category(String category) {
@@ -31,6 +33,11 @@ public class StatFactory {
 
             @Override
             public String getCategory() {
+                return category;
+            }
+            
+            @Override
+            public String toString() {
                 return category;
             }
         };
@@ -41,6 +48,11 @@ public class StatFactory {
 
             @Override
             public String getName() {
+                return name;
+            }
+            
+            @Override
+            public String toString() {
                 return name;
             }
         };
