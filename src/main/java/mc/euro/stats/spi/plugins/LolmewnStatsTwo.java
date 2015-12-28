@@ -17,7 +17,9 @@ import mc.euro.stats.api.xyz.PlayerData;
 import mc.euro.stats.api.xyz.StatName;
 import mc.euro.stats.spi.Stats;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.RegisteredServiceProvider;
 
 import nl.lolmewn.stats.api.Stat;
 import nl.lolmewn.stats.api.StatDataType;
@@ -37,6 +39,12 @@ import nl.lolmewn.stats.player.StatsPlayer;
 public class LolmewnStatsTwo implements Stats {
     
     StatsAPI api;
+    
+    public LolmewnStatsTwo() {
+        RegisteredServiceProvider<StatsAPI> container = Bukkit.getServer().getServicesManager()
+                    .getRegistration(StatsAPI.class);
+        this.api = container.getProvider();
+    }
     
     public LolmewnStatsTwo(StatsAPI reference) {
         this.api = reference;
@@ -61,10 +69,10 @@ public class LolmewnStatsTwo implements Stats {
                 table, 
                 MySQLType.valueOf(stat.getDataType().name()), 
                 stat.getName().toLowerCase().replaceAll(" ", ""), 
-                stat.getContext().toArray(new String[0])
+                stat.getOtherColumns().toArray(new String[0])
         );
         table.addStat(s);
-        for (Context c : stat.getContext()) {
+        for (Context c : stat.getOtherColumns()) {
             StatsColumn col = table.addColumn(c.getName(), MySQLType.valueOf(c.getDataType().name())).addAttributes(MySQLAttribute.NOT_NULL);
             if (c.getDefault() != null) col.setDefault(c.getDefault());
         }
@@ -79,7 +87,7 @@ public class LolmewnStatsTwo implements Stats {
                 table, 
                 MySQLType.valueOf(stat.getDataType().name()), 
                 stat.getName().toLowerCase().replaceAll(" ", ""), 
-                stat.getContext().stream().map((Context c) -> c.getName()).toArray((int size) -> new String[size])
+                stat.getOtherColumns().stream().map((Context c) -> c.getName()).toArray((int size) -> new String[size])
         );
     }
     
@@ -92,7 +100,7 @@ public class LolmewnStatsTwo implements Stats {
                 table, 
                 MySQLType.STRING, 
                 stat.getName().toLowerCase().replaceAll(" ", ""), 
-                stat.getContext().stream().map((Context c) -> c.getName()).toArray((int size) -> new String[size])
+                stat.getOtherColumns().stream().map((Context c) -> c.getName()).toArray((int size) -> new String[size])
         );
     }
 
@@ -101,12 +109,12 @@ public class LolmewnStatsTwo implements Stats {
         Stat s = api.getStat(stat.getUniqueId());
         StatsPlayer splayer = api.getPlayer(player);
         StatData sdata = new StatData(splayer, s, false);
-        Object[] contextualValues = new Object[stat.getContext().size()];
-        if (value.getContextualValues().values().size() != stat.getContext().size()) {
+        Object[] contextualValues = new Object[stat.getOtherColumns().size()];
+        if (value.getContextualValues().values().size() != stat.getOtherColumns().size()) {
             throw new UnsupportedOperationException("Not enough metadata was passed to setData()");
         }
         int index = 0;
-        for (Context key : stat.getContext()) {
+        for (Context key : stat.getOtherColumns()) {
             if (!value.getContextualValues().containsKey(key.getName())) {
                 throw new UnsupportedOperationException("Incorrect metadata was passed to setData()");
             }
@@ -115,7 +123,7 @@ public class LolmewnStatsTwo implements Stats {
         }
         
         sdata.setCurrentValue(contextualValues, value.doubleValue());
-        sdata.forceUpdate(stat.getContext().toArray());
+        sdata.forceUpdate(stat.getOtherColumns().toArray());
     }
 
     @Override

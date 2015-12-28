@@ -2,8 +2,6 @@ package mc.euro.stats.api.xyz;
 
 import com.google.common.collect.ImmutableSet;
 
-import java.util.Set;
-
 import mc.euro.stats.api.Stat;
 import mc.euro.stats.api.xyz.MetaInfo.Context;
 
@@ -27,7 +25,7 @@ public class StatMetaInfo extends StatInfo implements Stat {
     /**
      * Context is a Set of Contextual Information.
      */
-    public ImmutableSet<Context> getContext() {
+    public ImmutableSet<Context> getOtherColumns() {
         return metaInfo.getContext();
     }
 
