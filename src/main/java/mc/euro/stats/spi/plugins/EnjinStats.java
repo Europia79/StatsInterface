@@ -6,12 +6,11 @@ import com.google.common.collect.Multimap;
 
 import java.util.Map;
 
-import mc.euro.stats.api.xyz.Data;
-import mc.euro.stats.api.xyz.DataType;
-import mc.euro.stats.api.Stat;
-import mc.euro.stats.api.xyz.PlayerData;
-import mc.euro.stats.api.xyz.StatName;
-import mc.euro.stats.spi.Stats;
+import mc.euro.stats.api.v0.Data;
+import mc.euro.stats.api.v0.DataType;
+import mc.euro.stats.api.v0.Stat;
+import mc.euro.stats.api.v0.PlayerData;
+import mc.euro.stats.spi.v0.Stats;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -87,12 +86,12 @@ public class EnjinStats implements Stats {
     }
 
     @Override
-    public Map<StatName, Data> getPlayerStats(Player player) {
+    public Map<Stat, Data> getPlayerStats(Player player) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public Multimap<Integer, PlayerData> getLeaderboard(StatName stat, int size) {
+    public Multimap<Integer, PlayerData> getLeaderboard(Stat stat, int size) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

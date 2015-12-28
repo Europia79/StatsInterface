@@ -1,18 +1,22 @@
-package mc.euro.stats.api;
+package mc.euro.stats.api.v0;
 
 import com.google.common.collect.ImmutableSet;
 
+import java.util.HashMap;
 import java.util.LinkedHashSet;
-
-import mc.euro.stats.api.immutables.ImmutableStat;
-import mc.euro.stats.api.xyz.DataType;
-import mc.euro.stats.api.xyz.MetaInfo;
+import java.util.Map;
 
 /**
  * 
  * @author Nikolai
  */
 public class StatFactory {
+    
+    static Map<String, Stat> stats = new HashMap<>();
+    
+    public static Stat get(String uniqueId) {
+        return stats.get(uniqueId);
+    }
     
     public static Stat createStat(Category category, StatName name, DataType type, ImmutableSet<MetaInfo.Context> context) {
         return defineStat(category, name, type, context);

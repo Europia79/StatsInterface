@@ -1,4 +1,4 @@
-package mc.euro.stats.api.xyz;
+package mc.euro.stats.api.v0;
 
 import com.google.common.collect.ImmutableSet;
 

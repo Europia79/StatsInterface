@@ -1,12 +1,8 @@
-package mc.euro.stats.api.immutables;
+package mc.euro.stats.api.v0;
 
 import com.google.common.collect.ImmutableSet;
 
-import mc.euro.stats.api.Category;
-import mc.euro.stats.api.Stat;
-import mc.euro.stats.api.StatName;
-import mc.euro.stats.api.xyz.DataType;
-import mc.euro.stats.api.xyz.MetaInfo.Context;
+import mc.euro.stats.api.v0.MetaInfo.Context;
 
 /**
  * 
@@ -17,13 +13,13 @@ public final class ImmutableStat implements Stat {
     private final Category category;
     private final StatName name;
     private final DataType type;
-    private final ImmutableSet<Context> context;
+    private final ImmutableSet<MetaInfo.Context> context;
     
-    public ImmutableStat(Category category, StatName name, DataType type, ImmutableSet<Context> contextLabels) {
+    public ImmutableStat(Category category, StatName name, DataType type, ImmutableSet<MetaInfo.Context> otherColumns) {
         this.category = category;
         this.name = name;
         this.type = type;
-        this.context = contextLabels;
+        this.context = otherColumns;
     }
     
     @Override

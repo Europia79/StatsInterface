@@ -8,7 +8,7 @@ import java.util.List;
 
 import mc.alk.tracker.Tracker;
 import mc.alk.tracker.TrackerInterface;
-import mc.euro.stats.spi.Stats;
+import mc.euro.stats.spi.v0.Stats;
 import mc.euro.stats.spi.plugins.AlkarinStats;
 import mc.euro.stats.spi.plugins.EnjinStats;
 import mc.euro.stats.spi.plugins.LolmewnStatsTwo;

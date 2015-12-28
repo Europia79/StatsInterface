@@ -1,24 +1,18 @@
 package mc.euro.stats;
 
-import java.util.Iterator;
-import java.util.LinkedHashSet;
+import com.google.common.collect.Multimap;
+
 import java.util.Map;
-import java.util.ServiceLoader;
+import java.util.Map.Entry;
 
 import mc.alk.arena.executors.CustomCommandExecutor;
 import mc.alk.arena.executors.MCCommand;
-import mc.euro.stats.api.Stat;
-import mc.euro.stats.api.StatFactory;
-import mc.euro.stats.api.xyz.Data;
-import mc.euro.stats.api.xyz.DataType;
-import mc.euro.stats.api.xyz.InvalidDataException;
-import mc.euro.stats.api.xyz.MetaInfo;
-import mc.euro.stats.api.xyz.MetaInfo.ContextItem;
-import mc.euro.stats.api.xyz.MetaInfo.InfoBuilder;
-import mc.euro.stats.api.xyz.StatInfo;
-import mc.euro.stats.api.xyz.StatMetaInfo;
-import mc.euro.stats.api.xyz.StatName;
-import mc.euro.stats.spi.Stats;
+import mc.euro.stats.api.v0.Data;
+import mc.euro.stats.api.v0.InvalidDataException;
+import mc.euro.stats.api.v0.PlayerData;
+import mc.euro.stats.api.v0.Stat;
+import mc.euro.stats.api.v0.StatFactory;
+import mc.euro.stats.spi.v0.Stats;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -39,93 +33,84 @@ public class StatExecutor extends CustomCommandExecutor {
     
     /**
      * What would using the API look & feel like ?
+     * You only have to create/define a Stat once:
+     * then you should simply be able to get it via the Uniqueid: Category + StatName
+     * String statId = category + "." + name
+     * Stat s = StatFactory.get(statId);
      */
-    @MCCommand(cmds = {"register"}, op = true)
-    public boolean register(CommandSender sender, String category, String statName, String type, String... context) {
+    @MCCommand(cmds = {"register", "registerStat"}, op = true)
+    public boolean registerStatCmd(CommandSender sender, String category, String statName, String type, String... context) {
         Stat stat = StatFactory.defineStat( // create/define a Stat
                 StatFactory.category(category),
                 StatFactory.name(statName),
                 StatFactory.type(type),
                 StatFactory.context(context));
-        // You only have to create/define a Stat once:
-        // then you should simply be able to get it via the UniqueId: Category + StatName
-        // Stat s = Stat.getStat(Stat.category(category), Stat.name(statName));
         engine.registerStat(stat);
         return true;
     }
 
-    /**
-     * What would using the API look & feel like ?
-     */
-    @MCCommand(cmds = {"registerStat"}, op = true)
-    public boolean registerStat(CommandSender sender, String category, String statName, String type, String... context) {
-        DataType dataType = DataType.valueOf(type);
-        StatInfo statInfo = new StatInfo(category, statName, dataType);
-        InfoBuilder builder = new MetaInfo.InfoBuilder();
-        LinkedHashSet<ContextItem> iset = parseContext(context);
-        for (ContextItem ci : iset) {
-            builder.addContext(ci.name, ci.type);
-        }
-        MetaInfo metaInfo = builder.create();
-        Stat stat = new StatMetaInfo(statInfo, metaInfo);
-        engine.registerStat(stat);
-        String msg = "" + stat.getUniqueId() + " has been registered.";
-        sender.sendMessage(msg);
-        return true;
-    }
-    
-    private LinkedHashSet<ContextItem> parseContext(String[] context) {
-        LinkedHashSet<ContextItem> result = new LinkedHashSet<ContextItem>();
-        for (int x = 0; x < context.length; x = x + 2) {
-            for (int y = 1; y < context.length; y = y + 2) {
-                String name = context[x];
-                String type = context[y];
-                result.add(new ContextItem(name, DataType.valueOf(type)));
-            }
-        }
-        return result;
-    }
-
-    @MCCommand(cmds = {"registerStatLog"}, op = true)
-    public boolean registerStatLog(CommandSender sender, String category, String statName) {
-        StatName stat = new StatName(category, statName);
-        engine.registerStatLog(null);
+    @MCCommand(cmds = {"registerEventLog"}, op = true)
+    public boolean registerEventLogCmd(CommandSender sender, String category, String statName, String type, String... context) {
+        Stat stat = StatFactory.defineStat( // create/define a Stat
+                StatFactory.category(category),
+                StatFactory.name(statName),
+                StatFactory.type(type),
+                StatFactory.context(context));
+        engine.registerStatLog(stat);
         return true;
     }
 
-    @MCCommand()
-    public boolean setData(CommandSender sender, Player player, String category, String statName, String value, String... context) {
+    @MCCommand(cmds = {"setData"}, op = true)
+    public boolean setDataCmd(Player player, String statId, String value, String... context) {
+        Stat stat = StatFactory.get(statId);
         Data data = new Data(value);
-        StatInfo statInfo = new StatInfo(category, statName, DataType.STRING);
-        MetaInfo metaInfo = new MetaInfo.InfoBuilder().create();
-        Stat stat = new StatMetaInfo(statInfo, metaInfo);
         engine.setData(player, stat, data);
         return true;
     }
 
-    @MCCommand()
-    public void increment(Player player, Stat stat) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    @MCCommand(cmds = {"increment", "inc"}, op = true)
+    public boolean incrementCmd(Player player, String statId) {
+        return incrementCmd(player, statId, 1);
     }
 
-    @MCCommand()
-    public void increment(Player player, Stat stat, Number amount) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    @MCCommand(cmds = {"increment", "inc"}, op = true)
+    public boolean incrementCmd(Player player, String statId, Number amount) {
+        Stat stat = StatFactory.get(statId);
+        Data data = getData(player, stat);
+        System.out.println("Stat value before: " + data.toString());
+        engine.increment(player, stat, amount);
+        System.out.println("Stat value after: " + data.toString());
+        return true;
     }
 
-    @MCCommand()
+    @MCCommand(cmds = {"getData"}, op = true)
+    public boolean getDataCmd(Player player, String statId) {
+        Stat stat = StatFactory.get(statId);
+        Data data = getData(player, stat);
+        player.sendMessage("value = " + data.toString());
+        return true;
+    }
+    
     public Data getData(Player player, Stat stat) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return engine.getData(player, stat);        
     }
 
-    @MCCommand()
-    public Map<Stat, Data> getPlayerStats(Player player) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    @MCCommand(cmds = {"getPlayerStats"}, op = true)
+    public boolean getPlayerStatsCmd(Player player) {
+        Map<Stat, Data> datamap = engine.getPlayerStats(player);
+        datamap.forEach( (Stat s, Data d) -> player.sendMessage(String.format("%s: %s", s.getUniqueId(), d.toString())) );
+        return true;
     }
 
-    @MCCommand()
-    public Map<Integer, Map<String, Data>> getTopStats(Stat stat, int top) throws InvalidDataException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    @MCCommand(cmds = {"getTopStats", "getLeaderBoard"}, op = true)
+    public boolean getTopStatsCmd(Player player, String statId, int top) throws InvalidDataException {
+        Stat stat = StatFactory.get(statId);
+        Multimap<Integer, PlayerData> pmap = engine.getLeaderboard(stat, top);
+        String msg = "%s. - %s";
+        for (Entry entry : pmap.entries()) {
+            player.sendMessage(String.format(msg, entry.getKey().toString(), entry.getValue().toString()));
+        }
+        return true;
     }
 
 }

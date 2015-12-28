@@ -1,13 +1,12 @@
-package mc.euro.stats.spi;
+package mc.euro.stats.spi.v0;
 
 import com.google.common.collect.Multimap;
 
 import java.util.Map;
 
-import mc.euro.stats.api.Stat;
-import mc.euro.stats.api.xyz.Data;
-import mc.euro.stats.api.xyz.PlayerData;
-import mc.euro.stats.api.xyz.StatName;
+import mc.euro.stats.api.v0.Stat;
+import mc.euro.stats.api.v0.Data;
+import mc.euro.stats.api.v0.PlayerData;
 
 import org.bukkit.entity.Player;
 
@@ -31,7 +30,7 @@ public interface Stats {
     
     /** getting player Data for a Stat: */
     public Data getData(Player player, Stat stat);
-    public Map<StatName, Data> getPlayerStats(Player player); // No InvalidDataException here because we can just return zero for the Data.
+    public Map<Stat, Data> getPlayerStats(Player player); // No InvalidDataException here because we can just return zero for the Data.
     // public Map<String, Map<String, Data>> getStatCategoriesFor(Player player);
     
     /**
@@ -60,7 +59,7 @@ public interface Stats {
      * The size() is easily accessible.
      * The standard Map view is easily accessible via asMap().
      */
-    public Multimap<Integer, PlayerData> getLeaderboard(StatName stat, int size);
+    public Multimap<Integer, PlayerData> getLeaderboard(Stat stat, int size);
     // public Map<Integer, Set<PlayerData>> getTopStats(StatName statName, int top);
     
     /**

@@ -11,11 +11,11 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import mc.euro.stats.api.xyz.Data;
-import mc.euro.stats.api.xyz.MetaInfo.Context;
-import mc.euro.stats.api.xyz.PlayerData;
-import mc.euro.stats.api.xyz.StatName;
-import mc.euro.stats.spi.Stats;
+import mc.euro.stats.api.v0.Data;
+import mc.euro.stats.api.v0.MetaInfo.Context;
+import mc.euro.stats.api.v0.PlayerData;
+import mc.euro.stats.api.v0.StatFactory;
+import mc.euro.stats.spi.v0.Stats;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -51,7 +51,7 @@ public class LolmewnStatsTwo implements Stats {
     }
     
     @Override
-    public void registerStat(mc.euro.stats.api.Stat stat) {
+    public void registerStat(mc.euro.stats.api.v0.Stat stat) {
         if (!api.getStatsTableManager().containsKey(stat.getCategory()) ) {
             registerNewTable(stat);
         } else {
@@ -59,7 +59,7 @@ public class LolmewnStatsTwo implements Stats {
         }
     }
     
-    public void registerNewTable(mc.euro.stats.api.Stat stat) {
+    public void registerNewTable(mc.euro.stats.api.v0.Stat stat) {
         String tableName = stat.getCategory();
         StatsTable table = new StatsTable(tableName, true, api.isCreatingSnapshots());
         api.getStatsTableManager().putIfAbsent(tableName, table);
@@ -78,7 +78,7 @@ public class LolmewnStatsTwo implements Stats {
         }
     }
     
-    public void registerNewColumn(mc.euro.stats.api.Stat stat) {
+    public void registerNewColumn(mc.euro.stats.api.v0.Stat stat) {
         String tableName = stat.getCategory();
         StatsTable table = api.getStatsTableManager().get(tableName);
         api.addStat(stat.getUniqueId(), 
@@ -92,7 +92,7 @@ public class LolmewnStatsTwo implements Stats {
     }
     
     @Override
-    public void registerStatLog(mc.euro.stats.api.Stat stat) {
+    public void registerStatLog(mc.euro.stats.api.v0.Stat stat) {
         StatsTable table = new StatsTable(stat.getCategory(), true, api.isCreatingSnapshots());
         api.addStat(stat.getUniqueId(), 
                 StatDataType.FIXED, 
@@ -105,7 +105,7 @@ public class LolmewnStatsTwo implements Stats {
     }
 
     @Override
-    public void setData(Player player, mc.euro.stats.api.Stat stat, Data value) {
+    public void setData(Player player, mc.euro.stats.api.v0.Stat stat, Data value) {
         Stat s = api.getStat(stat.getUniqueId());
         StatsPlayer splayer = api.getPlayer(player);
         StatData sdata = new StatData(splayer, s, false);
@@ -127,7 +127,7 @@ public class LolmewnStatsTwo implements Stats {
     }
 
     @Override
-    public void increment(Player player, mc.euro.stats.api.Stat stat) {
+    public void increment(Player player, mc.euro.stats.api.v0.Stat stat) {
         increment(player, stat, 1);
     }
 
@@ -138,7 +138,7 @@ public class LolmewnStatsTwo implements Stats {
      * But the Data doesn't have corresponding metadata: data.getContextualValues()
      */
     @Override
-    public void increment(Player player, mc.euro.stats.api.Stat stat, Number amount) {
+    public void increment(Player player, mc.euro.stats.api.v0.Stat stat, Number amount) {
         Stat s = api.getStatExact(stat.getUniqueId());
         StatsPlayer splayer = api.getPlayer(player);
         StatData data = splayer.getStatData(s, player.getWorld().getName(), true);
@@ -146,7 +146,7 @@ public class LolmewnStatsTwo implements Stats {
     }
 
     @Override
-    public Data getData(Player player, mc.euro.stats.api.Stat stat) {
+    public Data getData(Player player, mc.euro.stats.api.v0.Stat stat) {
         StatsPlayer statsPlayer = api.getPlayer(player);
         Stat s = api.getStat(stat.getUniqueId());
         StatData data = statsPlayer.getGlobalStatData(s);
@@ -155,15 +155,16 @@ public class LolmewnStatsTwo implements Stats {
     }
 
     @Override
-    public Map<StatName, Data> getPlayerStats(Player player) {
-        Map<StatName, Data> results = new HashMap<>();
+    public Map<mc.euro.stats.api.v0.Stat, Data> getPlayerStats(Player player) {
+        Map<mc.euro.stats.api.v0.Stat, Data> results = new HashMap<>();
         StatsPlayer splayer = api.getPlayer(player);
         for (Stat s : api.getAllStats()) {
             for (String w : splayer.getWorlds()) {
                 StatData d = splayer.getStatData(s, w, false);
                 if (d.getAllVariables().isEmpty()) {
                     double v = d.getValue(new Object[] {});
-                    StatName stat = new StatName(s.getTable().getName(), s.getName());
+                    String uniqueId = s.getTable().getName() + "." + s.getName();
+                    mc.euro.stats.api.v0.Stat stat = StatFactory.get(uniqueId);
                     results.put(stat, new Data(String.valueOf(v)));
                 }
             }
@@ -174,7 +175,7 @@ public class LolmewnStatsTwo implements Stats {
     // @Override public Map<String, Map<String, Data>> getStatCategoriesFor(Player player) { return null }
 
     @Override
-    public Multimap<Integer, PlayerData> getLeaderboard(StatName stat, int size) {
+    public Multimap<Integer, PlayerData> getLeaderboard(mc.euro.stats.api.v0.Stat stat, int size) {
         Multimap<Integer, PlayerData> results = LinkedHashMultimap.create(size * 2, size);
         final String players = api.getDatabasePrefix() + "players";
         final String table = stat.getCategory();

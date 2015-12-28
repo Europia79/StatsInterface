@@ -1,9 +1,8 @@
-package mc.euro.stats.api;
+package mc.euro.stats.api.v0;
 
 import com.google.common.collect.ImmutableSet;
 
-import mc.euro.stats.api.xyz.DataType;
-import mc.euro.stats.api.xyz.MetaInfo.Context;
+import mc.euro.stats.api.v0.MetaInfo.Context;
 
 /**
  * What is a Stat ?
