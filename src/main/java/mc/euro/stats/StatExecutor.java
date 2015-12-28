@@ -1,7 +1,9 @@
 package mc.euro.stats;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -9,6 +11,7 @@ import mc.alk.arena.executors.CustomCommandExecutor;
 import mc.alk.arena.executors.MCCommand;
 import mc.euro.stats.api.v0.Data;
 import mc.euro.stats.api.v0.InvalidDataException;
+import mc.euro.stats.api.v0.MetaInfo.Context;
 import mc.euro.stats.api.v0.PlayerData;
 import mc.euro.stats.api.v0.Stat;
 import mc.euro.stats.api.v0.StatFactory;
@@ -39,18 +42,35 @@ public class StatExecutor extends CustomCommandExecutor {
      * Stat s = StatFactory.get(statId);
      */
     @MCCommand(cmds = {"register", "registerStat"}, op = true)
-    public boolean registerStatCmd(CommandSender sender, String category, String statName, String type, String... context) {
+    public boolean registerStatCmd(CommandSender sender, String category, String statName, String type, String[] context) {
         Stat stat = StatFactory.defineStat( // create/define a Stat
                 StatFactory.category(category),
                 StatFactory.name(statName),
                 StatFactory.type(type),
-                StatFactory.context(context));
+                StatFactory.context(parseContext(context, 4)));
         engine.registerStat(stat);
         return true;
     }
+    
+    /**
+     * When we ask for a parameter of type Array (or Varargs) like String[],
+     * then the BaseExecutor for CustomCommandExecutor will give us ALL cmd-line args.
+     * So we need to ignore the args already used.
+     * @param args - All command-line arguments.
+     * @param offset - Number of args to ignore.
+     * @return - A new String[] with the contents of args[offset] to args[max].
+     */
+    private String[] parseContext(String[] args, int offset) {
+        int length = args.length - offset;
+        String[] context = new String[length];
+        for (int index = 0; index < length; index++) {
+            context[index] = args[index + offset];
+        }
+        return context;
+    }
 
     @MCCommand(cmds = {"registerEventLog"}, op = true)
-    public boolean registerEventLogCmd(CommandSender sender, String category, String statName, String type, String... context) {
+    public boolean registerEventLogCmd(CommandSender sender, String category, String statName, String type, String[] context) {
         Stat stat = StatFactory.defineStat( // create/define a Stat
                 StatFactory.category(category),
                 StatFactory.name(statName),
