@@ -14,7 +14,7 @@ to install any stat plugin they choose (or none).
 Additionally, StatsInterface can be used as a guide for stat plugin developers 
 to ensure their plugin provides a powerful & flexible API.
 
-What would using StatsInteface look & feel like ? 
+What would using ```StatsInterface``` look & feel like ? 
 Full examples can be found in ```mc.euro.stats.StatsExecutor.java```.
 The API is under construction, but here's a preview:
 
