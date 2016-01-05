@@ -54,7 +54,7 @@ Maven Repository:
 
 If you use maven, put these declarations in your pom.xml:
 
-~~**repositories section:**~~
+**repositories section:**
 
 Check to make sure this repository is still active. If not, you will have to install the project to your local ```~/.m2/repository```
 
